@@ -36,16 +36,6 @@ module.exports = [
             quality: [0.6, 0.8],
           },
         ],
-        [
-          "svgo",
-          {
-            plugins: [
-              {
-                removeViewBox: false,
-              },
-            ],
-          },
-        ],
       ],
     },
   }),

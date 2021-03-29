@@ -10,10 +10,11 @@ var rules = [
   require("./webpack/loaders/babel"),
   require("./webpack/loaders/css"),
   require("./webpack/loaders/image"),
+  require("./webpack/loaders/svg"),
 ];
 
 module.exports = {
-  mode: "production",
+  mode: "development",
   entry: "./src/js/main.js",
   output: {
     path: path.resolve(__dirname, "./dist"),
@@ -28,11 +29,12 @@ module.exports = {
       shaders: path.resolve(__dirname, "src/shaders"),
       js: path.resolve(__dirname, "src/js"),
       css: path.resolve(__dirname, "src/css"),
+      assets: path.resolve(__dirname, "assets"),
     },
   },
   devServer: {
     contentBase: path.resolve(__dirname, "./dist"),
   },
-  devtool: "eval",
+  devtool: "source-map",
   plugins: plugins,
 };
