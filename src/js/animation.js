@@ -13,10 +13,8 @@ class Animation {
   fpsHistory = [];
   time = 0;
   startTime = Date.now();
-  maxLength = 0;
-  step = 0;
 
-  totalTime = 5; // in seconds
+  totalTime = 3; // in seconds
 
   init() {
     this.cnv = document.createElement(`canvas`);
@@ -29,19 +27,7 @@ class Animation {
       this.setCanvasSize();
     });
 
-    this.initPoints();
-
     return this;
-  }
-
-  initPoints() {
-    this.maxLength = points.reduce((acc, cur) => {
-      if (acc < cur.length) {
-        return cur.length;
-      }
-      return acc;
-    }, 0);
-    this.step = this.totalTime / this.maxLength;
   }
 
   updateCanvas() {
@@ -51,18 +37,9 @@ class Animation {
   }
 
   drawPath(path) {
-    let steps = this.time / this.step;
-    if (path.length + steps < this.maxLength) {
-      return;
-    }
+    const ctx = this.ctx;
 
-    let r = mapclamp(
-      this.time,
-      this.totalTime - this.step * path.length,
-      this.totalTime,
-      0,
-      path.length
-    );
+    let r = mapclamp(this.time, 0, this.totalTime, 0, path.length);
     r = Math.floor(r);
 
     path.reduce((acc, cur, index) => {
@@ -104,7 +81,7 @@ class Animation {
   updateTime() {
     const ctx = this.ctx;
     this.time = (Date.now() - this.startTime) / 1000.0;
-    if (this.time > this.totalTime * 2) {
+    if (this.time > this.totalTime) {
       // reset time
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, this.size.w, this.size.h);
