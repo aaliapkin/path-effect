@@ -49,7 +49,7 @@ var Shape = /*#__PURE__*/function () {
 
     this.points = points;
     this.start = 0;
-    this.duration = 1.0;
+    this.end = 1.0;
     this.width = 5;
     this.drawn = 0;
     this.color = "rgba(255,255,255,1)";
@@ -58,6 +58,11 @@ var Shape = /*#__PURE__*/function () {
   _createClass(Shape, [{
     key: "draw",
     value: function draw(t) {
+      if (t < this.start) {
+        return;
+      }
+
+      t = (t - this.start) / (this.end - this.start);
       var i = Math.floor((this.points.length - 1) * t);
 
       for (var j = this.drawn; j < i; ++j) {
@@ -514,8 +519,8 @@ var tweakshapes = []; // prettier-ignore
 {
   tweakshapes[0] = {
     width: 14,
-    start: 0,
-    duration: 0.8
+    start: 0.00,
+    duration: 0.80
   };
   tweakshapes[1] = {
     width: 16,
@@ -526,18 +531,18 @@ var tweakshapes = []; // prettier-ignore
   tweakshapes[2] = {
     width: 9,
     start: 0.46,
-    duration: 1
+    duration: 1.00
   };
   tweakshapes[3] = {
     width: 9,
-    start: 0.4,
-    duration: 1,
+    start: 0.40,
+    duration: 1.00,
     color: "rgba(125,125,255,1)"
   };
   tweakshapes[4] = {
     width: 7,
     start: 0.32,
-    duration: 0.6,
+    duration: 0.60,
     color: "rgba(125,255,255,1)"
   };
   tweakshapes[5] = {
@@ -548,7 +553,7 @@ var tweakshapes = []; // prettier-ignore
   tweakshapes[6] = {
     width: 10,
     start: 0.72,
-    duration: 1,
+    duration: 1.00,
     color: "rgba(0,125,0,1)"
   };
   tweakshapes[7] = {
@@ -558,13 +563,13 @@ var tweakshapes = []; // prettier-ignore
   };
   tweakshapes[8] = {
     width: 10,
-    start: 0.4,
-    duration: 0.8,
+    start: 0.40,
+    duration: 0.80,
     color: "rgba(255,125,0,1)"
   };
   tweakshapes[9] = {
     width: 7,
-    start: 0.5,
+    start: 0.50,
     duration: 0.82,
     color: "rgba(0,0,125,1)"
   };
@@ -593,12 +598,12 @@ var tweakshapes = []; // prettier-ignore
   tweakshapes[14] = {
     width: 5,
     start: 0.66,
-    duration: 0.9
+    duration: 0.90
   };
   tweakshapes[15] = {
     width: 6,
     start: 0.64,
-    duration: 1
+    duration: 1.00
   };
   tweakshapes[16] = {
     width: 4,
@@ -613,8 +618,8 @@ var tweakshapes = []; // prettier-ignore
   };
   tweakshapes[18] = {
     width: 6,
-    start: 0.5,
-    duration: 0.7
+    start: 0.50,
+    duration: 0.70
   };
   tweakshapes[19] = {
     width: 6,
