@@ -14,17 +14,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var assets_svg_svg_low_svg__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! assets/svg/svg-low.svg */ "./assets/svg/svg-low.svg");
 /* harmony import */ var assets_svg_svg_low_svg__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(assets_svg_svg_low_svg__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var js_svg_read__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! js/svg/read */ "./src/js/svg/read.js");
+/* harmony import */ var js_svg_tweakshapes__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! js/svg/tweakshapes */ "./src/js/svg/tweakshapes.js");
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 
 
@@ -35,7 +31,8 @@ var ctx;
 var time = {
   start: Date.now(),
   current: 0,
-  loop: 8
+  duration: 2.0,
+  loop: 6
 };
 var size = {
   w: 0,
@@ -45,166 +42,6 @@ var size = {
 };
 var points;
 var shapes;
-var tweakshapes = [];
-tweakshapes[0] = {
-  width: 14,
-  start: 0.0,
-  duration: 4.0
-};
-tweakshapes[1] = {
-  width: 18,
-  start: 1.4,
-  duration: 3.0,
-  color: "rgba(255,0,0,1)"
-};
-tweakshapes[2] = {
-  width: 9,
-  start: 2.3,
-  duration: 2.7
-};
-tweakshapes[3] = {
-  width: 9,
-  start: 2.0,
-  duration: 3.0,
-  color: "rgba(125,125,255,1)"
-};
-tweakshapes[4] = {
-  width: 7,
-  start: 1.6,
-  duration: 1.4,
-  color: "rgba(125,255,255,1)"
-};
-tweakshapes[5] = {
-  width: 4,
-  start: 3.6,
-  duration: 0.8
-};
-tweakshapes[6] = {
-  width: 10,
-  start: 3.6,
-  duration: 1.4,
-  color: "rgba(0,125,0,1)"
-};
-tweakshapes[7] = {
-  width: 6,
-  start: 2.2,
-  duration: 1
-}; // smol
-
-tweakshapes[8] = {
-  width: 10,
-  start: 2.0,
-  duration: 2.0,
-  color: "rgba(255,125,0,1)"
-}; // mid
-
-tweakshapes[9] = {
-  width: 7,
-  start: 2.5,
-  duration: 1.6,
-  color: "rgba(0,0,125,1)"
-}; // brother of one on top
-
-tweakshapes[10] = {
-  width: 7,
-  start: 2.2,
-  duration: 1.6,
-  color: "rgba(125,255,125,1)"
-}; // brother of one on top
-
-tweakshapes[11] = {
-  width: 4,
-  start: 2.8,
-  duration: 1
-}; //smol
-
-tweakshapes[12] = {
-  width: 7,
-  start: 1.7,
-  duration: 2,
-  color: "rgba(255,255,125,1)"
-}; // separate top
-
-tweakshapes[13] = {
-  width: 4,
-  start: 2.1,
-  duration: 0.8
-};
-tweakshapes[14] = {
-  width: 5,
-  start: 3.3,
-  duration: 1.2
-};
-tweakshapes[15] = {
-  width: 6,
-  start: 3.2,
-  duration: 1.8
-}; // rightmost
-
-tweakshapes[16] = {
-  width: 4,
-  start: 3.7,
-  duration: 1.2
-}; // right gorup / smol
-
-tweakshapes[17] = {
-  width: 5,
-  start: 3.4,
-  duration: 1.4,
-  color: "rgba(255,125,125,1)"
-};
-tweakshapes[18] = {
-  width: 6,
-  start: 2.5,
-  duration: 1
-}; // smol
-
-tweakshapes[19] = {
-  width: 6,
-  start: 2.8,
-  duration: 1
-};
-tweakshapes[20] = {
-  width: 4,
-  start: 3.6,
-  duration: 0.8
-}; // smol
-
-tweakshapes[21] = {
-  width: 5,
-  start: 3.4,
-  duration: 0.8
-};
-tweakshapes[22] = {
-  width: 4,
-  start: 3.6,
-  duration: 1.1
-};
-tweakshapes[23] = {
-  width: 6,
-  start: 1.8,
-  duration: 2
-}; //smol
-
-tweakshapes[24] = {
-  width: 6,
-  start: 3.3,
-  duration: 1,
-  color: "rgba(0,0,255,1)"
-}; //smol
-
-tweakshapes[25] = {
-  width: 8,
-  start: 3.2,
-  duration: 1,
-  color: "rgba(0,125,255,1)"
-};
-tweakshapes = tweakshapes.map(function (el) {
-  return _objectSpread(_objectSpread({}, el), {}, {
-    start: el.start / 2,
-    duration: el.duration / 2
-  });
-});
 
 var Shape = /*#__PURE__*/function () {
   function Shape(points) {
@@ -212,7 +49,7 @@ var Shape = /*#__PURE__*/function () {
 
     this.points = points;
     this.start = 0;
-    this.duration = 5;
+    this.duration = 1.0;
     this.width = 5;
     this.drawn = 0;
     this.color = "rgba(255,255,255,1)";
@@ -221,15 +58,16 @@ var Shape = /*#__PURE__*/function () {
   _createClass(Shape, [{
     key: "draw",
     value: function draw(t) {
-      var i = Math.floor((0,js_lib__WEBPACK_IMPORTED_MODULE_1__.mapclamp)(t, this.start, this.start + this.duration, 0, this.points.length - 1));
-      var w = this.calculateWidth(t);
+      var i = Math.floor((this.points.length - 1) * t);
 
       for (var j = this.drawn; j < i; ++j) {
+        var w = this.calculateWidth(j);
         var color = this.color;
         color = "white";
         ctx.fillStyle = color;
         ctx.beginPath();
-        ctx.arc(size.cx + this.points[j].x, this.points[j].y, w, 0, Math.PI * 2, true);
+        ctx.arc(size.cx + this.points[j].x, this.points[j].y, w, 0, Math.PI * 2, true); // symmetry
+
         ctx.arc(size.cx - this.points[j].x, this.points[j].y, w, 0, Math.PI * 2, true);
         ctx.fill();
       }
@@ -238,10 +76,10 @@ var Shape = /*#__PURE__*/function () {
     }
   }, {
     key: "calculateWidth",
-    value: function calculateWidth(t) {
-      var t1 = t - this.start;
-      var w = -t1 * (t1 - this.duration);
-      return (0,js_lib__WEBPACK_IMPORTED_MODULE_1__.mapclamp)(w, 0, this.duration * this.duration / 4, 1, this.width);
+    value: function calculateWidth(j) {
+      var w = j / (this.points.length - 1);
+      w = -w * (w - 1);
+      return (0,js_lib__WEBPACK_IMPORTED_MODULE_1__.mapclamp)(w, 0, 1 / 4, 1, this.width);
     }
   }]);
 
@@ -250,7 +88,14 @@ var Shape = /*#__PURE__*/function () {
 
 var handleShapes = function handleShapes() {
   shapes.forEach(function (el) {
-    el.draw(time.current);
+    function easeOutCubic(x) {
+      return 1 - Math.pow(1 - x, 3);
+    }
+
+    var t = time.current / time.duration;
+    t = t > 1 ? 1 : t;
+    t = easeOutCubic(t);
+    el.draw(t);
   });
 };
 
@@ -268,6 +113,8 @@ var init = function init() {
   ctx = canvas.getContext("2d");
   setCanvasSize();
   window.addEventListener("resize", function () {
+    resetTime();
+    resetCanvas();
     setCanvasSize();
   });
   points = (0,js_svg_read__WEBPACK_IMPORTED_MODULE_3__.default)((assets_svg_svg_low_svg__WEBPACK_IMPORTED_MODULE_2___default()));
@@ -279,8 +126,8 @@ var createShapes = function createShapes() {
   shapes = points.map(function (el, index) {
     var overwrite = {};
 
-    if (tweakshapes[index]) {
-      overwrite = tweakshapes[index];
+    if (js_svg_tweakshapes__WEBPACK_IMPORTED_MODULE_4__.default[index]) {
+      overwrite = js_svg_tweakshapes__WEBPACK_IMPORTED_MODULE_4__.default[index];
     }
 
     var shape = new Shape(el);
@@ -299,15 +146,18 @@ var handleTime = function handleTime(resetCallback) {
 
   if (time.current > time.loop) {
     resetCallback();
-    time.start = Date.now();
-    time.current = (Date.now() - time.start) / 1000.0;
+    resetTime();
   }
+};
+
+var resetTime = function resetTime() {
+  time.start = Date.now();
+  time.current = (Date.now() - time.start) / 1000.0;
 };
 
 var animate = function animate() {
   handleTime(resetCanvas);
-  handleShapes(); // this.calculateFps();
-
+  handleShapes();
   window.requestAnimationFrame(animate);
 };
 
@@ -645,6 +495,166 @@ var smoothShape = function smoothShape(shape) {
 };
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (smoothShapes);
+
+/***/ }),
+
+/***/ "./src/js/svg/tweakshapes.js":
+/*!***********************************!*\
+  !*** ./src/js/svg/tweakshapes.js ***!
+  \***********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+var tweakshapes = []; // prettier-ignore
+
+{
+  tweakshapes[0] = {
+    width: 14,
+    start: 0,
+    duration: 0.8
+  };
+  tweakshapes[1] = {
+    width: 16,
+    start: 0.28,
+    duration: 0.88,
+    color: "rgba(255,0,0,1)"
+  };
+  tweakshapes[2] = {
+    width: 9,
+    start: 0.46,
+    duration: 1
+  };
+  tweakshapes[3] = {
+    width: 9,
+    start: 0.4,
+    duration: 1,
+    color: "rgba(125,125,255,1)"
+  };
+  tweakshapes[4] = {
+    width: 7,
+    start: 0.32,
+    duration: 0.6,
+    color: "rgba(125,255,255,1)"
+  };
+  tweakshapes[5] = {
+    width: 4,
+    start: 0.72,
+    duration: 0.88
+  };
+  tweakshapes[6] = {
+    width: 10,
+    start: 0.72,
+    duration: 1,
+    color: "rgba(0,125,0,1)"
+  };
+  tweakshapes[7] = {
+    width: 6,
+    start: 0.44,
+    duration: 0.64
+  };
+  tweakshapes[8] = {
+    width: 10,
+    start: 0.4,
+    duration: 0.8,
+    color: "rgba(255,125,0,1)"
+  };
+  tweakshapes[9] = {
+    width: 7,
+    start: 0.5,
+    duration: 0.82,
+    color: "rgba(0,0,125,1)"
+  };
+  tweakshapes[10] = {
+    width: 7,
+    start: 0.44,
+    duration: 0.76,
+    color: "rgba(125,255,125,1)"
+  };
+  tweakshapes[11] = {
+    width: 4,
+    start: 0.56,
+    duration: 0.76
+  };
+  tweakshapes[12] = {
+    width: 7,
+    start: 0.34,
+    duration: 0.74,
+    color: "rgba(255,255,125,1)"
+  };
+  tweakshapes[13] = {
+    width: 4,
+    start: 0.42,
+    duration: 0.58
+  };
+  tweakshapes[14] = {
+    width: 5,
+    start: 0.66,
+    duration: 0.9
+  };
+  tweakshapes[15] = {
+    width: 6,
+    start: 0.64,
+    duration: 1
+  };
+  tweakshapes[16] = {
+    width: 4,
+    start: 0.74,
+    duration: 0.98
+  };
+  tweakshapes[17] = {
+    width: 5,
+    start: 0.68,
+    duration: 0.96,
+    color: "rgba(255,125,125,1)"
+  };
+  tweakshapes[18] = {
+    width: 6,
+    start: 0.5,
+    duration: 0.7
+  };
+  tweakshapes[19] = {
+    width: 6,
+    start: 0.56,
+    duration: 0.76
+  };
+  tweakshapes[20] = {
+    width: 4,
+    start: 0.72,
+    duration: 0.88
+  };
+  tweakshapes[21] = {
+    width: 5,
+    start: 0.68,
+    duration: 0.84
+  };
+  tweakshapes[22] = {
+    width: 4,
+    start: 0.72,
+    duration: 0.94
+  };
+  tweakshapes[23] = {
+    width: 6,
+    start: 0.36,
+    duration: 0.76
+  };
+  tweakshapes[24] = {
+    width: 6,
+    start: 0.66,
+    duration: 0.86,
+    color: "rgba(0,0,255,1)"
+  };
+  tweakshapes[25] = {
+    width: 8,
+    start: 0.64,
+    duration: 0.84,
+    color: "rgba(0,125,255,1)"
+  };
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (tweakshapes);
 
 /***/ }),
 
