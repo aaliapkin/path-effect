@@ -6,7 +6,7 @@ import loadSvg from "js/svg/read";
 
 let canvas;
 let ctx;
-const time = { start: Date.now(), current: 0, loop: 8 };
+const time = { start: Date.now(), current: 0, loop: 4 };
 const size = { w: 0, h: 0, cx: 0, cy: 0 };
 let points;
 let shapes;
@@ -18,7 +18,7 @@ tweakshapes[0] = {
   duration: 4.0,
 };
 tweakshapes[1] = {
-  width: 18,
+  width: 16,
   start: 1.4,
   duration: 3.0,
   color: `rgba(255,0,0,1)`,
@@ -124,8 +124,8 @@ class Shape {
         this.points.length - 1
       )
     );
-    let w = this.calculateWidth(t);
     for (let j = this.drawn; j < i; ++j) {
+      let w = this.calculateWidth(j);
       const color = this.color;
       color = "white";
       ctx.fillStyle = color;
@@ -138,6 +138,7 @@ class Shape {
         Math.PI * 2,
         true
       );
+      // symmetry
       ctx.arc(
         size.cx - this.points[j].x,
         this.points[j].y,
@@ -151,16 +152,33 @@ class Shape {
     this.drawn = i;
   }
 
-  calculateWidth(t) {
-    let t1 = t - this.start;
-    let w = -t1 * (t1 - this.duration);
-    return mapclamp(w, 0, (this.duration * this.duration) / 4, 1, this.width);
+  calculateWidth(j) {
+    let w = j / (this.points.length - 1);
+    w = -w * (w - 1);
+    return mapclamp(w, 0, 1 / 4, 1, this.width);
   }
 }
 
 const handleShapes = function () {
   shapes.forEach((el) => {
-    time.current + time.current / el.draw(time.current);
+    // TODO: add better easing
+    function easeInOutQuart(x) {
+      return x < 0.5 ? 8 * x * x * x * x : 1 - Math.pow(-2 * x + 2, 4) / 2;
+    }
+    function easeOutQuint(x) {
+      return 1 - Math.pow(1 - x, 5);
+    }
+    function easeInOutQuint(x) {
+      return x < 0.5 ? 16 * x * x * x * x * x : 1 - Math.pow(-2 * x + 2, 5) / 2;
+    }
+    function easeInOutCubic(x) {
+      return x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+    }
+    function easeOutCubic(x) {
+      return 1 - Math.pow(1 - x, 3);
+    }
+    let t = easeOutCubic(time.current / time.loop) * time.loop;
+    el.draw(t);
   });
 };
 
@@ -222,7 +240,6 @@ const resetTime = function () {
 const animate = function () {
   handleTime(resetCanvas);
   handleShapes();
-  // this.calculateFps();
   window.requestAnimationFrame(animate);
 };
 
