@@ -1,9 +1,16 @@
-import data from "assets/svg/bugurt.svg";
-var element = document.createElement("div");
-element.innerHTML = data;
-const svg = element.firstChild;
+import smoothShapes from "js/svg/smooth";
 
 const RegEx = { seg: /[A-Za-z][^A-Za-z]+/g };
+
+const loadSvg = function (data) {
+  var element = document.createElement("div");
+  element.innerHTML = data;
+  const svg = element.firstChild;
+
+  let shapes = collectData(svg);
+  shapes = filterData(shapes);
+  return smoothShapes(shapes);
+};
 
 const analyzeChunk = function (found, arr) {
   const operation = found[0];
@@ -114,7 +121,7 @@ function collectData(svg) {
       });
     }
   });
-  return result.filter((el) => el.length > 10);
+  return result.filter((el) => el.length > 2);
 }
 
 function filterData(shapes) {
@@ -137,8 +144,4 @@ function filterData(shapes) {
   });
 }
 
-let shapes = collectData(svg);
-shapes = filterData(shapes);
-console.log(shapes);
-
-export default shapes;
+export default loadSvg;

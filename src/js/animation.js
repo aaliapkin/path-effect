@@ -1,6 +1,8 @@
 import mouse from "js/mouse";
 import { mapclamp } from "js/lib";
-import points from "js/readsvg";
+
+import svgfile from "assets/svg/svg-low.svg";
+import loadSvg from "js/svg/read";
 
 class Animation {
   cnv = null;
@@ -16,6 +18,8 @@ class Animation {
 
   totalTime = 3; // in seconds
 
+  points = null;
+
   init() {
     this.cnv = document.createElement(`canvas`);
     document.body.appendChild(this.cnv);
@@ -27,11 +31,13 @@ class Animation {
       this.setCanvasSize();
     });
 
+    this.points = loadSvg(svgfile);
+
     return this;
   }
 
   updateCanvas() {
-    points.forEach((el) => {
+    this.points.forEach((el) => {
       this.drawPath(el);
     });
   }

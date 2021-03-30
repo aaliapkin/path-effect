@@ -57,5 +57,8 @@
     "webpack": "^5.27.1",
     "webpack-cli": "^4.5.0",
     "webpack-dev-server": "^3.11.2"
+  },
+  "dependencies": {
+    "cubic-spline": "^3.0.3"
   }
 }
