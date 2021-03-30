@@ -4,127 +4,229 @@ import { mapclamp } from "js/lib";
 import svgfile from "assets/svg/svg-low.svg";
 import loadSvg from "js/svg/read";
 
-class Animation {
-  cnv = null;
-  gl = null;
-  size = { w: 0, h: 0, cx: 0, cy: 0 };
+let canvas;
+let ctx;
+const time = { start: Date.now(), current: 0, loop: 8 };
+const size = { w: 0, h: 0, cx: 0, cy: 0 };
+let points;
+let shapes;
 
-  lastFrameTime = 0;
-  currentFrameTime = 0;
-  fps = 60;
-  fpsHistory = [];
-  time = 0;
-  startTime = Date.now();
+let tweakshapes = [];
+tweakshapes[0] = {
+  width: 14,
+  start: 0.0,
+  duration: 4.0,
+};
+tweakshapes[1] = {
+  width: 18,
+  start: 1.4,
+  duration: 3.0,
+  color: `rgba(255,0,0,1)`,
+};
+tweakshapes[2] = { width: 9, start: 2.3, duration: 2.7 };
+tweakshapes[3] = {
+  width: 9,
+  start: 2.0,
+  duration: 3.0,
+  color: `rgba(125,125,255,1)`,
+};
+tweakshapes[4] = {
+  width: 7,
+  start: 1.6,
+  duration: 1.4,
+  color: `rgba(125,255,255,1)`,
+};
+tweakshapes[5] = { width: 4, start: 3.6, duration: 0.8 };
+tweakshapes[6] = {
+  width: 10,
+  start: 3.6,
+  duration: 1.4,
+  color: `rgba(0,125,0,1)`,
+};
+tweakshapes[7] = { width: 6, start: 2.2, duration: 1 }; // smol
+tweakshapes[8] = {
+  width: 10,
+  start: 2.0,
+  duration: 2.0,
+  color: `rgba(255,125,0,1)`,
+}; // mid
+tweakshapes[9] = {
+  width: 7,
+  start: 2.5,
+  duration: 1.6,
+  color: `rgba(0,0,125,1)`,
+}; // brother of one on top
+tweakshapes[10] = {
+  width: 7,
+  start: 2.2,
+  duration: 1.6,
+  color: `rgba(125,255,125,1)`,
+}; // brother of one on top
+tweakshapes[11] = { width: 4, start: 2.8, duration: 1 }; //smol
+tweakshapes[12] = {
+  width: 7,
+  start: 1.7,
+  duration: 2,
+  color: `rgba(255,255,125,1)`,
+}; // separate top
+tweakshapes[13] = { width: 4, start: 2.1, duration: 0.8 };
+tweakshapes[14] = { width: 5, start: 3.3, duration: 1.2 };
+tweakshapes[15] = { width: 6, start: 3.2, duration: 1.8 }; // rightmost
+tweakshapes[16] = { width: 4, start: 3.7, duration: 1.2 }; // right gorup / smol
+tweakshapes[17] = {
+  width: 5,
+  start: 3.4,
+  duration: 1.4,
+  color: `rgba(255,125,125,1)`,
+};
+tweakshapes[18] = { width: 6, start: 2.5, duration: 1 }; // smol
+tweakshapes[19] = { width: 6, start: 2.8, duration: 1 };
+tweakshapes[20] = { width: 4, start: 3.6, duration: 0.8 }; // smol
+tweakshapes[21] = { width: 5, start: 3.4, duration: 0.8 };
+tweakshapes[22] = { width: 4, start: 3.6, duration: 1.1 };
+tweakshapes[23] = { width: 6, start: 1.8, duration: 2 }; //smol
+tweakshapes[24] = {
+  width: 6,
+  start: 3.3,
+  duration: 1,
+  color: `rgba(0,0,255,1)`,
+}; //smol
+tweakshapes[25] = {
+  width: 8,
+  start: 3.2,
+  duration: 1,
+  color: `rgba(0,125,255,1)`,
+};
 
-  totalTime = 3; // in seconds
+tweakshapes = tweakshapes.map((el) => ({
+  ...el,
+  start: el.start / 2,
+  duration: el.duration / 2,
+}));
 
-  points = null;
-
-  init() {
-    this.cnv = document.createElement(`canvas`);
-    document.body.appendChild(this.cnv);
-    this.cnv.id = "canvas";
-    this.ctx = this.cnv.getContext("2d");
-
-    this.setCanvasSize();
-    window.addEventListener(`resize`, () => {
-      this.setCanvasSize();
-    });
-
-    this.points = loadSvg(svgfile);
-
-    return this;
+class Shape {
+  constructor(points) {
+    this.points = points;
+    this.start = 0;
+    this.duration = 5;
+    this.width = 5;
+    this.drawn = 0;
+    this.color = `rgba(255,255,255,1)`;
   }
 
-  updateCanvas() {
-    this.points.forEach((el) => {
-      this.drawPath(el);
-    });
-  }
-
-  drawPath(path) {
-    const ctx = this.ctx;
-
-    let r = mapclamp(this.time, 0, this.totalTime, 0, path.length);
-    r = Math.floor(r);
-
-    path.reduce((acc, cur, index) => {
-      if (index > r) {
-        return false;
-      }
-      this.drawSegment(acc, cur, cur.w);
-      return cur;
-    });
-  }
-
-  drawSegment(from, to, width) {
-    const ctx = this.ctx;
-
-    ctx.lineWidth = 2;
-    ctx.strokeStyle = "blue";
-    ctx.beginPath();
-    ctx.moveTo(this.normalize(from).x, this.normalize(from).y);
-    ctx.lineTo(this.normalize(to).x, this.normalize(to).y);
-    ctx.stroke();
-    ctx.closePath();
-  }
-
-  normalize(point) {
-    return {
-      ...point,
-      x: point.x,
-      y: point.y,
-    };
-  }
-
-  setCanvasSize() {
-    this.size.w = this.cnv.width = window.innerWidth;
-    this.size.h = this.cnv.height = window.innerHeight;
-    this.size.cx = this.size.w / 2;
-    this.size.cy = this.size.h / 2;
-  }
-
-  updateTime() {
-    const ctx = this.ctx;
-    this.time = (Date.now() - this.startTime) / 1000.0;
-    if (this.time > this.totalTime) {
-      // reset time
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, this.size.w, this.size.h);
-      this.startTime = Date.now();
-      this.time = (Date.now() - this.startTime) / 1000.0;
+  draw(t) {
+    let i = Math.floor(
+      mapclamp(
+        t,
+        this.start,
+        this.start + this.duration,
+        0,
+        this.points.length - 1
+      )
+    );
+    let w = this.calculateWidth(t);
+    for (let j = this.drawn; j < i; ++j) {
+      const color = this.color;
+      color = "white";
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(
+        size.cx + this.points[j].x,
+        this.points[j].y,
+        w,
+        0,
+        Math.PI * 2,
+        true
+      );
+      ctx.arc(
+        size.cx - this.points[j].x,
+        this.points[j].y,
+        w,
+        0,
+        Math.PI * 2,
+        true
+      );
+      ctx.fill();
     }
+    this.drawn = i;
   }
 
-  calculateFps() {
-    if (this.lastFrameTime == 0) {
-      this.lastFrameTime = this.time;
-    } else {
-      this.currentFrameTime = this.time - this.lastFrameTime;
-      this.fpsHistory.push(1 / this.currentFrameTime);
-      this.lastFrameTime = this.time;
-      if (this.fpsHistory.length > 20) {
-        const sum = this.fpsHistory.reduce((a, b) => a + b, 0);
-        const avg = sum / this.fpsHistory.length || 0;
-        this.fps = avg;
-        this.fpsHistory = [];
-        // console.log("Animation fps ", Math.round(this.fps, 0));
-      }
-    }
-  }
-
-  // animation loop
-  updateAnimation() {
-    this.updateTime();
-    this.updateCanvas();
-    this.calculateFps();
-
-    window.requestAnimationFrame(() => {
-      this.updateAnimation();
-    });
+  calculateWidth(t) {
+    let t1 = t - this.start;
+    let w = -t1 * (t1 - this.duration);
+    return mapclamp(w, 0, (this.duration * this.duration) / 4, 1, this.width);
   }
 }
 
+const handleShapes = function () {
+  shapes.forEach((el) => {
+    time.current + time.current / el.draw(time.current);
+  });
+};
+
+const setCanvasSize = function () {
+  size.w = canvas.width = window.innerWidth;
+  size.h = canvas.height = window.innerHeight;
+  size.cx = size.w / 2;
+  size.cy = size.h / 2;
+};
+
+const init = function () {
+  canvas = document.createElement(`canvas`);
+  document.body.appendChild(canvas);
+  canvas.id = "canvas";
+  ctx = canvas.getContext("2d");
+
+  setCanvasSize();
+  window.addEventListener(`resize`, () => {
+    resetTime();
+    resetCanvas();
+    setCanvasSize();
+  });
+
+  points = loadSvg(svgfile);
+  createShapes();
+  return this;
+};
+
+const createShapes = function () {
+  shapes = points.map((el, index) => {
+    let overwrite = {};
+    if (tweakshapes[index]) {
+      overwrite = tweakshapes[index];
+    }
+    let shape = new Shape(el);
+    Object.assign(shape, overwrite);
+    return shape;
+  });
+};
+
+const resetCanvas = function () {
+  ctx.fillStyle = "black";
+  ctx.fillRect(0, 0, size.w, size.h);
+};
+
+const handleTime = function (resetCallback) {
+  time.current = (Date.now() - time.start) / 1000.0;
+  if (time.current > time.loop) {
+    resetCallback();
+    resetTime();
+  }
+};
+
+const resetTime = function () {
+  time.start = Date.now();
+  time.current = (Date.now() - time.start) / 1000.0;
+};
+
+const animate = function () {
+  handleTime(resetCanvas);
+  handleShapes();
+  // this.calculateFps();
+  window.requestAnimationFrame(animate);
+};
+
 window.onload = () => {
-  new Animation().init().updateAnimation();
+  init();
+  animate();
 };

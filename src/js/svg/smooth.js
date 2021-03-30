@@ -2,7 +2,7 @@ import Spline from "cubic-spline";
 import { dist } from "js/lib";
 import { mapclamp } from "../lib";
 
-const PATH_RESOLUTION = 200;
+const PATH_RESOLUTION = 300;
 
 const smoothShapes = function (shapes) {
   return shapes.map((shape) => smoothShape(shape));
