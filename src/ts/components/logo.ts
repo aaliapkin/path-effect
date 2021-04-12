@@ -104,7 +104,7 @@ const setCanvasSize = function () {
   size.cy = size.h / 2
 }
 
-export const init = function (el) {
+export const init = function (el: HTMLDivElement) {
   element = el
   canvas = document.createElement(`canvas`)
   element.appendChild(canvas)

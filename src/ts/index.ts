@@ -1,4 +1,8 @@
+import 'css/null.scss'
+
 import { init, start } from 'ts/components/logo'
 
-init()
+const canvasDiv = document.getElementById('logo-placement') as HTMLDivElement
+
+init(canvasDiv)
 start()
