@@ -1,6 +1,8 @@
-'use strict';
+"use strict";
 
 module.exports = {
   test: /\.html$/i,
-  loader: 'html-loader',
+  use: {
+    loader: "html-loader",
+  },
 };

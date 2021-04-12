@@ -12,31 +12,31 @@ const ErrorOverlayPlugin = require("error-overlay-webpack-plugin");
 
 module.exports = [
   new HtmlWebpackPlugin({
-    template: path.resolve(root, "src/index.html"),
+    template: path.resolve(root, "src/templates/index.html"),
   }),
-  new CopyPlugin({
-    patterns: [
-      {
-        from: path.resolve(root, "src/img"),
-        to: path.resolve(root, "dist/img"),
-      },
-    ],
-  }),
+  // new CopyPlugin({
+  //   patterns: [
+  //     {
+  //       from: path.resolve(root, "assets/img"),
+  //       to: path.resolve(root, "dist/img"),
+  //     },
+  //   ],
+  // }),
   new MiniCssExtractPlugin(),
   new CleanWebpackPlugin(),
   // new ErrorOverlayPlugin(),
-  new ImageMinimizerPlugin({
-    minimizerOptions: {
-      plugins: [
-        ["gifsicle", { interlaced: true }],
-        ["mozjpeg", { quality: 80 }],
-        [
-          "pngquant",
-          {
-            quality: [0.6, 0.8],
-          },
-        ],
-      ],
-    },
-  }),
+  // new ImageMinimizerPlugin({
+  //   minimizerOptions: {
+  //     plugins: [
+  //       ["gifsicle", { interlaced: true }],
+  //       ["mozjpeg", { quality: 80 }],
+  //       [
+  //         "pngquant",
+  //         {
+  //           quality: [0.6, 0.8],
+  //         },
+  //       ],
+  //     ],
+  //   },
+  // }),
 ];
