@@ -21,6 +21,8 @@ const globalColor = `rgb(243, 20, 57)`
 let animId
 let end = false
 
+const scale = 0.5
+
 interface Point {
   x: number
   y: number
@@ -43,29 +45,29 @@ class Shape {
       return
     }
     t = (t - this.start) / (this.end - this.start)
-    let i = Math.floor((this.points.length - 1) * t)
+    // draw first i points
+    let i = Math.floor((this.points.length - 2) * t)
     for (let j = 0; j < i; ++j) {
-      const w = this.calculateWidth(j)
+      // TODO: not here
+      var p0 = _transformPoint(this.points[j])
+      var p1 = _transformPoint(this.points[j + 1])
+      var p2 = _transformPoint(this.points[j + 2])
+
+      var x0 = (p0.x + p1.x) / 2
+      var y0 = (p0.y + p1.y) / 2
+
+      var x1 = (p1.x + p2.x) / 2
+      var y1 = (p1.y + p2.y) / 2
+
+      ctx.beginPath()
+      ctx.lineWidth = this.calculateWidth(j)
+      ctx.strokeStyle = 'black'
+
       ctx.fillStyle = globalColor
       ctx.beginPath()
-      ctx.arc(
-        size.cx + this.points[j].x * transform.scale,
-        this.points[j].y * transform.scale,
-        w * transform.scale,
-        0,
-        Math.PI * 2,
-        true
-      )
-      // symmetry
-      ctx.arc(
-        size.cx - this.points[j].x * transform.scale,
-        this.points[j].y * transform.scale,
-        w * transform.scale,
-        0,
-        Math.PI * 2,
-        true
-      )
-      ctx.fill()
+      ctx.moveTo(x0, y0)
+      ctx.quadraticCurveTo(p1.x, p1.y, x1, y1)
+      ctx.stroke()
     }
     this.drawn = i
   }
@@ -74,6 +76,13 @@ class Shape {
     let w = j / (this.points.length - 1)
     w = -w * (w - 1)
     return mapclamp(w, 0, 1 / 4, 1, this.width)
+  }
+}
+
+const _transformPoint = function (p) {
+  return {
+    x: size.cx + p.x * scale,
+    y: 0 + p.y * scale,
   }
 }
 
@@ -104,7 +113,7 @@ const setCanvasSize = function () {
   size.cy = size.h / 2
 }
 
-export const init = function (el: HTMLDivElement) {
+export const init = function (el) {
   element = el
   canvas = document.createElement(`canvas`)
   element.appendChild(canvas)
