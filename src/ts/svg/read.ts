@@ -1,25 +1,37 @@
-import smoothShapes from 'ts/svg/smooth'
 import { parse } from 'svg-parser'
 import parsePath from 'parse-svg-path'
 import bezier from 'bezier-curve'
-import { dist } from 'ts/lib/lib'
+import { mapPlain, dist } from 'ts/lib/lib'
+
+let shapesconfig
 
 interface IPoint {
   x: number
   y: number
 }
 
-const loadSvg = function (data) {
+const loadSvg = function (data, sc) {
   const parsed = parse(data)
-  const paths = _parseSvg(parsed)
+  let paths = _parseSvg(parsed)
+  shapesconfig = sc
 
-  const subdivided = paths.map((el) => {
-    const dec = el.map(_decodeParsedPathsForBezier)
-    return _subdivideCurves(dec)
-  })
+  paths = paths
+    .filter((el) => el.length > 3)
+    .map((path, index) => {
+      path = path.map(_decodeParsedPathsForBezier)
+      path = _subdivideCurves(path)
+      path = _remapTime(path)
+      path = _filterPointsByTime(path)
+      path = _tweakTime(path, index)
+      return path
+    })
 
-  const remapped = _remapTime(subdivided)
-  return remapped.map(_filterPointsByTime)
+  console.log(
+    'points count',
+    paths.reduce((acc, cur) => acc + cur.length, 0)
+  )
+
+  return paths
 }
 
 const _parseSvg = function (parsed) {
@@ -126,24 +138,41 @@ const _subdivideCurves = function (paths) {
   return points
 }
 
-const _remapTime = function (subdivided) {
-  return subdivided.map((path) => {
-    const total = path.reduce((acc, cur) => acc + cur.d, 0)
-    let dist = 0
-    return path.map((el) => {
-      dist += el.d
-      return { x: el.x, y: el.y, t: dist / total }
-    })
+const _remapTime = function (path) {
+  const total = path.reduce((acc, cur) => acc + cur.d, 0)
+  let dist = 0
+  return path.map((el) => {
+    dist += el.d
+    return { x: el.x, y: el.y, t: dist / total }
   })
+}
+
+const _tweakTime = function (path, index) {
+  const { start, duration } = shapesconfig[index]
+  return path.map((point) => _tweakTimePoint(point, start, duration))
+}
+
+const _tweakTimePoint = function (point, start, duration) {
+  return {
+    ...point,
+    t: start + point.t * duration,
+  }
 }
 
 const _filterPointsByTime = function (path) {
   const result = []
+  let scale = dist(path[0], path[path.length - 1])
+  // and scale
+  scale = mapPlain(scale, 20, 300, 0.2, 1.0)
+
   let ct = 0
   path.forEach((el) => {
     if (el.t >= ct) {
       result.push(el)
-      ct += 0.005 + 0.01 * _parabola(el.t)
+      // optimize by path scale
+      let dt = 0.002 + 0.02 * _parabola(el.t)
+      dt /= scale
+      ct += dt
     }
   })
   return result

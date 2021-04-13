@@ -24,3 +24,5 @@
     git config --global alias.posu "!git push origin --set-upstream "
 
     git config --global --unset alias.am
+
+    git config --global alias.posu "!git push --set-upstream origin '$(git rev-parse --abbrev-ref HEAD)'"
