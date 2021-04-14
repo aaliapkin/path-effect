@@ -15,7 +15,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "start": () => (/* binding */ start)
 /* harmony export */ });
 /* harmony import */ var ts_svg_read__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ts/svg/read */ "./src/ts/svg/read.ts");
-/* harmony import */ var ts_svg_tweakshapes__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ts/svg/tweakshapes */ "./src/ts/svg/tweakshapes.ts");
+/* harmony import */ var ts_svg_shapes_config__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ts/svg/shapes-config */ "./src/ts/svg/shapes-config.ts");
 /* harmony import */ var ts_lib_easing_functions__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ts/lib/easing-functions */ "./src/ts/lib/easing-functions.ts");
 /* harmony import */ var assets_svg_svg_low_svg__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! assets/svg/svg-low.svg */ "./assets/svg/svg-low.svg");
 /* harmony import */ var assets_svg_svg_low_svg__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(assets_svg_svg_low_svg__WEBPACK_IMPORTED_MODULE_3__);
@@ -179,7 +179,7 @@ var init = function init(el) {
 
     _handleResize();
   });
-  var paths = (0,ts_svg_read__WEBPACK_IMPORTED_MODULE_0__.default)((assets_svg_svg_low_svg__WEBPACK_IMPORTED_MODULE_3___default()));
+  var paths = (0,ts_svg_read__WEBPACK_IMPORTED_MODULE_0__.default)((assets_svg_svg_low_svg__WEBPACK_IMPORTED_MODULE_3___default()), ts_svg_shapes_config__WEBPACK_IMPORTED_MODULE_1__.default);
   shapes = _createShapes(paths);
 };
 
@@ -193,25 +193,9 @@ var _createShapes = function _createShapes(paths) {
   console.log(transform.scale);
   paths = paths.map(function (path) {
     return path.map(_transformPoint);
-  }); // console.log(
-  //   JSON.stringify(
-  //     [...tweakshapes].map((el) => {
-  //       let total = 1.73
-  //       el.start = Math.round((el.start / total) * 100) / 100
-  //       el.duration = Math.round((el.duration / total) * 100) / 100
-  //       return el
-  //     })
-  //   )
-  // )
-
-  var s = paths.map(function (p, index) {
-    var _tweakshapes$index = ts_svg_tweakshapes__WEBPACK_IMPORTED_MODULE_1__.default[index],
-        width = _tweakshapes$index.width,
-        start = _tweakshapes$index.start,
-        duration = _tweakshapes$index.duration;
-    var points = p.map(function (point) {
-      return _remapTime(point, start, duration);
-    });
+  });
+  var s = paths.map(function (points, index) {
+    var width = ts_svg_shapes_config__WEBPACK_IMPORTED_MODULE_1__.default[index].width;
     var shape = new Shape(points, 1.8 * width / transform.scale);
     return shape;
   });
@@ -350,14 +334,18 @@ function easeOutBack(x) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "mapclamp": () => (/* binding */ mapclamp),
+/* harmony export */   "mapClamp": () => (/* binding */ mapClamp),
+/* harmony export */   "mapPlain": () => (/* binding */ mapPlain),
 /* harmony export */   "hexToRgb": () => (/* binding */ hexToRgb),
 /* harmony export */   "dist": () => (/* binding */ dist)
 /* harmony export */ });
-function mapclamp(x, in_start, in_end, out_start, out_end) {
+function mapClamp(x, in_start, in_end, out_start, out_end) {
   x = x === undefined ? in_end : x;
   x = x > in_end ? in_end : x;
   x = x < in_start ? in_start : x;
+  return mapPlain(x, in_start, in_end, out_start, out_end);
+}
+function mapPlain(x, in_start, in_end, out_start, out_end) {
   var out = out_start + (out_end - out_start) / (in_end - in_start) * (x - in_start);
   return out;
 }
@@ -413,21 +401,28 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 
 
 
+var shapesconfig;
 
-var loadSvg = function loadSvg(data) {
+var loadSvg = function loadSvg(data, sc) {
   var parsed = (0,svg_parser__WEBPACK_IMPORTED_MODULE_0__.parse)(data);
 
   var paths = _parseSvg(parsed);
 
-  return paths.filter(function (el) {
+  shapesconfig = sc;
+  paths = paths.filter(function (el) {
     return el.length > 3;
-  }).map(function (path) {
+  }).map(function (path, index) {
     path = path.map(_decodeParsedPathsForBezier);
     path = _subdivideCurves(path);
     path = _remapTime(path);
     path = _filterPointsByTime(path);
+    path = _tweakTime(path, index);
     return path;
   });
+  console.log('points count', paths.reduce(function (acc, cur) {
+    return acc + cur.length;
+  }, 0));
+  return paths;
 };
 
 var _parseSvg = function _parseSvg(parsed) {
@@ -559,14 +554,35 @@ var _remapTime = function _remapTime(path) {
   });
 };
 
+var _tweakTime = function _tweakTime(path, index) {
+  var _shapesconfig$index = shapesconfig[index],
+      start = _shapesconfig$index.start,
+      duration = _shapesconfig$index.duration;
+  return path.map(function (point) {
+    return _tweakTimePoint(point, start, duration);
+  });
+};
+
+var _tweakTimePoint = function _tweakTimePoint(point, start, duration) {
+  return _objectSpread(_objectSpread({}, point), {}, {
+    t: start + point.t * duration
+  });
+};
+
 var _filterPointsByTime = function _filterPointsByTime(path) {
   var result = [];
+  var scale = (0,ts_lib_lib__WEBPACK_IMPORTED_MODULE_3__.dist)(path[0], path[path.length - 1]); // and scale
+
+  scale = (0,ts_lib_lib__WEBPACK_IMPORTED_MODULE_3__.mapPlain)(scale, 20, 300, 0.2, 1.0);
   var ct = 0;
   path.forEach(function (el) {
     if (el.t >= ct) {
-      result.push(el); // TODO: optimize, too many points for short paths
+      result.push(el); // optimize by path scale
 
-      ct += 0.005 + 0.02 * _parabola(el.t);
+      var dt = 0.002 + 0.02 * _parabola(el.t);
+
+      dt /= scale;
+      ct += dt;
     }
   });
   return result;
@@ -580,10 +596,10 @@ var _parabola = function _parabola(t) {
 
 /***/ }),
 
-/***/ "./src/ts/svg/tweakshapes.ts":
-/*!***********************************!*\
-  !*** ./src/ts/svg/tweakshapes.ts ***!
-  \***********************************/
+/***/ "./src/ts/svg/shapes-config.ts":
+/*!*************************************!*\
+  !*** ./src/ts/svg/shapes-config.ts ***!
+  \*************************************/
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -591,160 +607,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-var tweakshapes = []; // prettier-ignore
-
-{
-  tweakshapes[0] = {
-    width: 14,
-    start: 0.00,
-    duration: 0.80
-  };
-  tweakshapes[1] = {
-    width: 16,
-    start: 0.28,
-    duration: 0.88,
-    color: "rgba(255,0,0,1)"
-  };
-  tweakshapes[2] = {
-    width: 9,
-    start: 0.46,
-    duration: 1.00
-  };
-  tweakshapes[3] = {
-    width: 9,
-    start: 0.40,
-    duration: 1.00,
-    color: "rgba(125,125,255,1)"
-  };
-  tweakshapes[4] = {
-    width: 7,
-    start: 0.32,
-    duration: 0.60,
-    color: "rgba(125,255,255,1)"
-  };
-  tweakshapes[5] = {
-    width: 4,
-    start: 0.72,
-    duration: 0.88
-  };
-  tweakshapes[6] = {
-    width: 10,
-    start: 0.72,
-    duration: 1.00,
-    color: "rgba(0,125,0,1)"
-  };
-  tweakshapes[7] = {
-    width: 6,
-    start: 0.44,
-    duration: 0.64
-  };
-  tweakshapes[8] = {
-    width: 10,
-    start: 0.40,
-    duration: 0.80,
-    color: "rgba(255,125,0,1)"
-  };
-  tweakshapes[9] = {
-    width: 7,
-    start: 0.50,
-    duration: 0.82,
-    color: "rgba(0,0,125,1)"
-  };
-  tweakshapes[10] = {
-    width: 7,
-    start: 0.44,
-    duration: 0.76,
-    color: "rgba(125,255,125,1)"
-  };
-  tweakshapes[11] = {
-    width: 4,
-    start: 0.56,
-    duration: 0.76
-  };
-  tweakshapes[12] = {
-    width: 7,
-    start: 0.34,
-    duration: 0.74,
-    color: "rgba(255,255,125,1)"
-  };
-  tweakshapes[13] = {
-    width: 4,
-    start: 0.42,
-    duration: 0.58
-  };
-  tweakshapes[14] = {
-    width: 5,
-    start: 0.66,
-    duration: 0.90
-  };
-  tweakshapes[15] = {
-    width: 6,
-    start: 0.64,
-    duration: 1.00
-  };
-  tweakshapes[16] = {
-    width: 4,
-    start: 0.74,
-    duration: 0.98
-  };
-  tweakshapes[17] = {
-    width: 5,
-    start: 0.68,
-    duration: 0.96,
-    color: "rgba(255,125,125,1)"
-  };
-  tweakshapes[18] = {
-    width: 6,
-    start: 0.50,
-    duration: 0.70
-  };
-  tweakshapes[19] = {
-    width: 6,
-    start: 0.56,
-    duration: 0.76
-  };
-  tweakshapes[20] = {
-    width: 4,
-    start: 0.72,
-    duration: 0.88
-  };
-  tweakshapes[21] = {
-    width: 5,
-    start: 0.68,
-    duration: 0.84
-  };
-  tweakshapes[22] = {
-    width: 4,
-    start: 0.72,
-    duration: 0.94
-  };
-  tweakshapes[23] = {
-    width: 6,
-    start: 0.36,
-    duration: 0.76
-  };
-  tweakshapes[24] = {
-    width: 6,
-    start: 0.66,
-    duration: 0.86,
-    color: "rgba(0,0,255,1)"
-  };
-  tweakshapes[25] = {
-    width: 8,
-    start: 0.64,
-    duration: 0.84,
-    color: "rgba(0,125,255,1)"
-  };
-}
-tweakshapes = [{
+var shapesconfig = [];
+shapesconfig = [{
   width: 14,
   start: 0,
   duration: 0.46
 }, {
   width: 16,
   start: 0.16,
-  duration: 0.51,
-  color: 'rgba(255,0,0,1)'
+  duration: 0.51
 }, {
   width: 9,
   start: 0.27,
@@ -752,13 +623,11 @@ tweakshapes = [{
 }, {
   width: 9,
   start: 0.23,
-  duration: 0.58,
-  color: 'rgba(125,125,255,1)'
+  duration: 0.58
 }, {
   width: 7,
   start: 0.18,
-  duration: 0.35,
-  color: 'rgba(125,255,255,1)'
+  duration: 0.35
 }, {
   width: 4,
   start: 0.42,
@@ -766,8 +635,7 @@ tweakshapes = [{
 }, {
   width: 10,
   start: 0.42,
-  duration: 0.58,
-  color: 'rgba(0,125,0,1)'
+  duration: 0.58
 }, {
   width: 6,
   start: 0.25,
@@ -775,18 +643,15 @@ tweakshapes = [{
 }, {
   width: 10,
   start: 0.23,
-  duration: 0.46,
-  color: 'rgba(255,125,0,1)'
+  duration: 0.46
 }, {
   width: 7,
   start: 0.29,
-  duration: 0.47,
-  color: 'rgba(0,0,125,1)'
+  duration: 0.47
 }, {
   width: 7,
   start: 0.25,
-  duration: 0.44,
-  color: 'rgba(125,255,125,1)'
+  duration: 0.44
 }, {
   width: 4,
   start: 0.32,
@@ -794,8 +659,7 @@ tweakshapes = [{
 }, {
   width: 7,
   start: 0.2,
-  duration: 0.43,
-  color: 'rgba(255,255,125,1)'
+  duration: 0.43
 }, {
   width: 4,
   start: 0.24,
@@ -815,8 +679,7 @@ tweakshapes = [{
 }, {
   width: 5,
   start: 0.39,
-  duration: 0.55,
-  color: 'rgba(255,125,125,1)'
+  duration: 0.55
 }, {
   width: 6,
   start: 0.29,
@@ -844,15 +707,13 @@ tweakshapes = [{
 }, {
   width: 6,
   start: 0.38,
-  duration: 0.5,
-  color: 'rgba(0,0,255,1)'
+  duration: 0.5
 }, {
   width: 8,
   start: 0.37,
-  duration: 0.49,
-  color: 'rgba(0,125,255,1)'
+  duration: 0.49
 }];
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (tweakshapes);
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (shapesconfig);
 
 /***/ }),
 
